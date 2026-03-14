@@ -3,293 +3,289 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SANBO OS — Autonomous Investment Intelligence</title>
+<title>SANBO OS — Command Center</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;600;700&display=swap');
 :root{
---bg:#0a0e1a;--cyan:#00e5ff;--teal:#00bcd4;--purple:#b388ff;
---pink:#ff4081;--green:#69f0ae;--orange:#ffab40;--red:#ff5252;
---gold:#ffd740;--blue:#448aff;--grid:rgba(0,229,255,.06);
+--bg:#0a0e1a;--card:rgba(15,20,35,0.9);--border:rgba(0,255,200,0.15);
+--accent:#00ffc8;--purple:#7b61ff;--warn:#ffb800;--danger:#ff4757;--success:#00e676;
+--text:#e0e0e0;--dim:#888;--font-mono:'JetBrains Mono',monospace;--font-sans:system-ui,-apple-system,sans-serif;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:#e0e0e0;font-family:'Inter',sans-serif}
-#stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) ease-in-out infinite alternate}
-@keyframes twinkle{0%{opacity:.15}100%{opacity:var(--o,1)}}
-#topbar{position:fixed;top:0;left:0;right:0;height:48px;background:rgba(10,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,229,255,.15);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;font-family:'JetBrains Mono',monospace}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-mono);overflow-x:hidden}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+pointer-events:none;z-index:9999}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:4px;position:relative;overflow:hidden}
+.panel::before,.panel::after{content:'';position:absolute;width:12px;height:12px;border-color:var(--accent);border-style:solid;opacity:.4}
+.panel::before{top:0;left:0;border-width:2px 0 0 2px}
+.panel::after{bottom:0;right:0;border-width:0 2px 2px 0}
+.panel-title{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--accent);text-transform:uppercase;padding:10px 14px 6px;font-family:var(--font-sans)}
+#topbar{position:fixed;top:0;left:0;right:0;height:48px;background:rgba(8,12,24,0.95);border-bottom:1px solid var(--border);
+display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100;backdrop-filter:blur(10px)}
 #topbar .logo{display:flex;align-items:center;gap:10px}
-#topbar .logo h1{font-size:18px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-#topbar .logo .sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase}
-#topbar .metrics{display:flex;gap:20px;font-size:11px;color:rgba(255,255,255,.5)}
-#topbar .metrics span{display:flex;align-items:center;gap:5px}
-#topbar .metrics .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 2s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:.4;box-shadow:none}}
-#topbar .clock{font-size:13px;color:var(--cyan);font-weight:500}
-#city-wrap{position:fixed;top:48px;left:0;right:0;bottom:100px;overflow:hidden;z-index:1}
-#city{position:absolute;width:2000px;height:1400px;left:50%;top:50%;transform:translate(-50%,-50%)}
-.building{position:absolute;cursor:pointer;transition:filter .3s,transform .3s}
-.building:hover{filter:brightness(1.3) drop-shadow(0 0 20px var(--glow,var(--cyan)));transform:scale(1.04);z-index:50}
-.building .label{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.6);white-space:nowrap;text-transform:uppercase;text-align:center;pointer-events:none}
-.building .stats{position:absolute;top:-40px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);border:1px solid var(--glow,var(--cyan));border-radius:6px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--glow,var(--cyan));white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:60}
-.building:hover .stats{opacity:1}
-.iso-bldg{filter:drop-shadow(0 4px 24px rgba(0,0,0,.5))}
-.path-line{position:absolute;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.2;transform-origin:left center;animation:path-glow 4s ease-in-out infinite alternate}
-@keyframes path-glow{0%{opacity:.1}100%{opacity:.35}}
-.agent{position:absolute;z-index:40;pointer-events:all;cursor:pointer}
-.agent-body{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 12px var(--agent-color,var(--cyan));border:2px solid var(--agent-color,var(--cyan));background:rgba(10,14,26,.8);position:relative}
-.agent-name{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--agent-color,var(--cyan));white-space:nowrap;letter-spacing:1px;text-transform:uppercase;opacity:.8}
-.agent .bubble{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid var(--agent-color,var(--cyan));border-radius:8px;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#e0e0e0;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none;max-width:280px;overflow:hidden;text-overflow:ellipsis}
-.agent .bubble.active{opacity:1}
-.agent .bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--agent-color,var(--cyan))}
-.agent:hover .task-queue{opacity:1;pointer-events:auto}
-.task-queue{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.95);border:1px solid var(--agent-color,var(--cyan));border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#e0e0e0;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;z-index:70;min-width:220px}
-.task-queue .tq-title{color:var(--agent-color,var(--cyan));font-weight:700;margin-bottom:4px;font-size:10px}
-.task-queue .tq-item{padding:2px 0;opacity:.7}
-.task-queue .tq-item::before{content:'▸ ';color:var(--agent-color,var(--cyan))}
-.particle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--cyan);opacity:.6;pointer-events:none;z-index:5}
-.drone{position:absolute;z-index:35;pointer-events:none}
-.drone-body{width:12px;height:12px;background:var(--purple);border-radius:2px;transform:rotate(45deg);box-shadow:0 0 8px var(--purple);opacity:.7}
-#holo{position:absolute;z-index:45;pointer-events:none;text-align:center;font-family:'JetBrains Mono',monospace}
-#holo .holo-ring{width:120px;height:40px;border:1px solid rgba(0,229,255,.3);border-radius:50%;margin:0 auto;animation:holo-spin 8s linear infinite}
-@keyframes holo-spin{0%{transform:rotateX(60deg) rotateZ(0deg)}100%{transform:rotateX(60deg) rotateZ(360deg)}}
-#holo .holo-text{font-size:11px;color:var(--cyan);text-shadow:0 0 10px var(--cyan);margin-top:-20px}
-#holo .holo-val{font-size:20px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-#bottom{position:fixed;bottom:0;left:0;right:0;height:100px;background:rgba(10,14,26,.95);backdrop-filter:blur(12px);border-top:1px solid rgba(0,229,255,.12);display:flex;z-index:100;font-family:'JetBrains Mono',monospace}
-#activity-log{flex:1;padding:10px 20px;overflow:hidden;position:relative}
-#activity-log h3{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:6px}
-#log-entries{overflow:hidden;height:65px}
-.log-entry{font-size:10px;color:rgba(255,255,255,.5);padding:2px 0;animation:log-slide .5s ease-out}
-.log-entry .log-time{color:var(--cyan);margin-right:8px}
-.log-entry .log-agent{color:var(--green);margin-right:4px}
-@keyframes log-slide{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
-#fund-metrics{width:360px;padding:10px 20px;border-left:1px solid rgba(0,229,255,.1);display:flex;flex-direction:column;justify-content:center;gap:6px}
-.metric-row{display:flex;justify-content:space-between;align-items:center}
-.metric-label{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase}
-.metric-value{font-size:14px;font-weight:700;color:var(--cyan)}
-.metric-value.gold{color:var(--gold)}
-.metric-value.green{color:var(--green)}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center}
-#overlay.show{display:flex}
-#overlay-card{background:rgba(15,20,35,.98);border:1px solid var(--cyan);border-radius:12px;padding:30px;max-width:500px;width:90%;position:relative}
-#overlay-card .close-btn{position:absolute;top:12px;right:16px;font-size:18px;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;font-family:inherit}
-#overlay-card .close-btn:hover{color:#fff}
-#overlay-card h2{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cyan);letter-spacing:2px;margin-bottom:12px}
-#overlay-card .detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
-#overlay-card .detail-label{color:rgba(255,255,255,.4)}
-#overlay-card .detail-val{color:var(--cyan);font-weight:600}
+#topbar .logo h1{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:3px}
+#topbar .logo span{font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}
+#topbar .clock{font-size:18px;font-weight:300;color:var(--text);letter-spacing:1px}
+#topbar .clock .date{font-size:10px;color:var(--dim);text-align:center}
+#topbar .status{display:flex;align-items:center;gap:16px;font-size:11px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.dot.green{background:var(--success);box-shadow:0 0 6px var(--success)}
+#app{padding-top:48px;display:flex;flex-direction:column;min-height:100vh}
+#metrics{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;padding:10px 12px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:10px 12px;text-align:center;position:relative}
+.metric-card .label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-sans)}
+.metric-card .value{font-size:20px;font-weight:600;margin:4px 0 2px;color:var(--text)}
+.metric-card .value.green{color:var(--success)}
+.metric-card .sparkline{height:20px;display:flex;align-items:flex-end;justify-content:center;gap:1px;margin-top:2px}
+.metric-card .sparkline .bar{width:3px;background:var(--accent);opacity:.5;border-radius:1px;transition:height .3s}
+#main{display:grid;grid-template-columns:30% 40% 30%;gap:8px;padding:0 12px 8px;flex:1;min-height:0;overflow:hidden}
+#agents{overflow-y:auto;padding:8px;max-height:calc(100vh - 200px)}
+#agents::-webkit-scrollbar{width:4px}
+#agents::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.agent-item{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .2s}
+.agent-item:hover{background:rgba(0,255,200,0.03)}
+.agent-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.agent-header .icon{font-size:14px}
+.agent-header .name{font-size:11px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:1px}
+.agent-header .status-dot{width:6px;height:6px;border-radius:50%;margin-left:auto}
+.agent-task{font-size:10px;color:var(--accent);opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;transition:opacity .3s}
+.agent-meta{display:flex;gap:8px;font-size:9px;color:var(--dim);align-items:center}
+.agent-meta .count{color:var(--accent)}
+.progress-bar{flex:1;height:3px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden}
+.progress-bar .fill{height:100%;border-radius:2px;transition:width 1s}
+.usage-bars{display:flex;gap:6px;margin-top:4px}
+.usage-bar{flex:1}
+.usage-bar .lbl{font-size:8px;color:var(--dim);margin-bottom:1px}
+.usage-bar .track{height:2px;background:rgba(255,255,255,0.05);border-radius:1px;overflow:hidden}
+.usage-bar .fill{height:100%;border-radius:1px;transition:width 2s}
+#feed{overflow:hidden;position:relative;max-height:calc(100vh - 200px)}
+#feed-list{padding:8px;display:flex;flex-direction:column;gap:2px}
+.feed-entry{font-size:10px;padding:6px 8px;border-radius:3px;background:rgba(255,255,255,0.02);
+animation:slideIn .4s ease-out;line-height:1.4;border-left:2px solid transparent}
+.feed-entry.completed{border-left-color:var(--success)}
+.feed-entry.progress{border-left-color:var(--warn)}
+.feed-entry.info{border-left-color:var(--purple)}
+.feed-entry.alert{border-left-color:var(--danger)}
+.feed-entry .ts{color:var(--dim);margin-right:4px}
+.feed-entry .agent{font-weight:600;color:var(--accent)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+#dashboards{overflow-y:auto;padding:0;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 200px)}
+#dashboards::-webkit-scrollbar{width:4px}
+#dashboards::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.fund-table{width:100%;border-collapse:collapse;font-size:9px}
+.fund-table th{text-align:left;padding:4px 6px;color:var(--dim);font-weight:400;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:1px}
+.fund-table td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.irr-high{color:var(--success)}.irr-mid{color:var(--warn)}.irr-low{color:var(--danger)}
+.pipeline{display:flex;align-items:center;gap:2px;margin:8px 0}
+.pipe-stage{text-align:center;padding:8px 4px;font-size:9px;border-radius:3px;color:#fff}
+.pipe-stage .count{font-size:16px;font-weight:700;display:block}
+.pipe-stage .lbl{font-size:8px;opacity:.8;text-transform:uppercase;letter-spacing:.5px}
+.sector-bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:10px}
+.sector-bar .name{width:70px;text-align:right;color:var(--dim);font-size:9px}
+.sector-bar .track{flex:1;height:14px;background:rgba(255,255,255,0.03);border-radius:2px;overflow:hidden}
+.sector-bar .fill{height:100%;border-radius:2px;display:flex;align-items:center;padding-left:6px;font-size:8px;font-weight:600;color:#fff;transition:width 1s}
+#ticker{height:28px;background:rgba(8,12,24,0.9);border-top:1px solid var(--border);overflow:hidden;display:flex;align-items:center}
+#ticker .scroll{white-space:nowrap;animation:marquee 30s linear infinite;font-size:11px;color:var(--dim)}
+#ticker .scroll span{color:var(--accent)}
+@keyframes marquee{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+@media(max-width:900px){
+#metrics{grid-template-columns:repeat(4,1fr)}
+#main{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+#topbar .status{display:none}
+}
+@media(max-width:500px){#metrics{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div id="stars"></div>
 <div id="topbar">
-  <div class="logo"><div><h1>SANBO OS</h1><div class="sub">Autonomous Investment Intelligence</div></div></div>
-  <div class="metrics"><span><span class="dot"></span> 8 AGENTS ACTIVE</span><span>• <span id="task-count">127</span> TASKS TODAY</span><span>• 99.7% UPTIME</span></div>
-  <div class="clock" id="clock"></div>
-</div>
-<div id="city-wrap"><div id="city"><canvas id="iso-grid" width="2000" height="1400"></canvas></div></div>
-<div id="bottom">
-  <div id="activity-log"><h3>Activity Log</h3><div id="log-entries"></div></div>
-  <div id="fund-metrics">
-    <div class="metric-row"><span class="metric-label">Total AUM</span><span class="metric-value gold">$2.4B</span></div>
-    <div class="metric-row"><span class="metric-label">Active Deals</span><span class="metric-value">23</span></div>
-    <div class="metric-row"><span class="metric-label">Portfolio Cos</span><span class="metric-value green">67</span></div>
-    <div class="metric-row"><span class="metric-label">IRR (Net)</span><span class="metric-value gold">28.4%</span></div>
+  <div class="logo"><h1>SANBO OS</h1><span>Command Center</span></div>
+  <div class="clock"><div id="clock-time">--:--:--</div><div class="date" id="clock-date">---</div></div>
+  <div class="status">
+    <span><span class="dot green"></span>8 AGENTS ONLINE</span>
+    <span>SYSTEM HEALTH <span style="color:var(--success)">99.7%</span></span>
+    <span>TASKS <span id="total-tasks" style="color:var(--accent)">0</span></span>
   </div>
 </div>
-<div id="overlay" onclick="if(event.target===this)closeOverlay()">
-  <div id="overlay-card">
-    <button class="close-btn" onclick="closeOverlay()">✕</button>
-    <h2 id="overlay-title"></h2>
-    <div id="overlay-body"></div>
+<div id="app">
+  <div id="metrics"></div>
+  <div id="main">
+    <div class="panel" id="agent-panel"><div class="panel-title">Agent Status Board</div><div id="agents"></div></div>
+    <div class="panel" id="feed-panel"><div class="panel-title">Live Activity Feed</div><div id="feed"><div id="feed-list"></div></div></div>
+    <div id="dashboards">
+      <div class="panel"><div class="panel-title">Fund Performance</div><div style="padding:0 10px 10px"><table class="fund-table" id="fund-table"></table></div></div>
+      <div class="panel"><div class="panel-title">Deal Pipeline</div><div style="padding:0 10px 10px" id="pipeline"></div></div>
+      <div class="panel"><div class="panel-title">Sector Allocation</div><div style="padding:0 10px 10px" id="sectors"></div></div>
+    </div>
+  </div>
+  <div id="ticker">
+    <div class="scroll">
+      AUM <span>$2.4B</span> ▲ 12% QoQ &nbsp;•&nbsp; Deals Closed: <span>4</span> this month &nbsp;•&nbsp; IRR <span>28.4%</span> (Fund Avg) &nbsp;•&nbsp; Portfolio Revenue: <span>$890M</span> combined &nbsp;•&nbsp; 3 IPO candidates in pipeline &nbsp;•&nbsp; Next LP meeting: <span>Mar 18</span> &nbsp;•&nbsp;
+      AUM <span>$2.4B</span> ▲ 12% QoQ &nbsp;•&nbsp; Deals Closed: <span>4</span> this month &nbsp;•&nbsp; IRR <span>28.4%</span> (Fund Avg) &nbsp;•&nbsp; Portfolio Revenue: <span>$890M</span> combined &nbsp;•&nbsp; 3 IPO candidates in pipeline &nbsp;•&nbsp; Next LP meeting: <span>Mar 18</span>
+    </div>
   </div>
 </div>
 <script>
-const BUILDINGS=[
-  {id:'deal-tower',name:'DEAL TOWER',x:950,y:320,w:130,h:180,color:'#00e5ff',glow:'#00e5ff',icon:'🏢',stats:'Deals Sourced: 847 | Pipeline: $2.1B',details:[['Deals This Week','12'],['Pipeline Value','$2.1B'],['Conversion Rate','3.2%'],['Avg Deal Size','$8.4M']]},
-  {id:'dd-lab',name:'DUE DILIGENCE LAB',x:680,y:260,w:120,h:140,color:'#b388ff',glow:'#b388ff',icon:'🔬',stats:'Reports: 34 Active | Flags: 7',details:[['Active Reports','34'],['Red Flags','7'],['Avg Completion','4.2 days'],['Reference Checks','156']]},
-  {id:'lp-lounge',name:'LP LOUNGE',x:1200,y:300,w:120,h:130,color:'#ff4081',glow:'#ff4081',icon:'🏛️',stats:'LPs: 42 | Capital Committed: $890M',details:[['Active LPs','42'],['Capital Committed','$890M'],['Pending Calls','$45M'],['NPS Score','92']]},
-  {id:'market-watch',name:'MARKET WATCH',x:500,y:420,w:130,h:130,color:'#ffab40',glow:'#ffab40',icon:'📡',stats:'Signals: 1.2K/day | Alerts: 8 Active',details:[['Daily Signals','1,247'],['Active Alerts','8'],['Markets Tracked','34'],['Data Sources','89']]},
-  {id:'portfolio-hq',name:'PORTFOLIO HQ',x:1100,y:520,w:130,h:140,color:'#69f0ae',glow:'#69f0ae',icon:'📊',stats:'Companies: 67 | Avg Growth: 142%',details:[['Portfolio Cos','67'],['Avg Revenue Growth','142%'],['Board Seats','23'],['Follow-on Rate','68%']]},
-  {id:'risk-vault',name:'RISK VAULT',x:600,y:600,w:110,h:110,color:'#ff5252',glow:'#ff5252',icon:'🔒',stats:'Risk Score: 7.2/10 | Simulations: 12K',details:[['Risk Score','7.2/10'],['Monte Carlo Runs','12,847'],['Stress Tests','34'],['VaR (95%)','$142M']]},
-  {id:'exit-gateway',name:'EXIT GATEWAY',x:1300,y:600,w:120,h:120,color:'#ffd740',glow:'#ffd740',icon:'🚀',stats:'Exit Pipeline: 5 | Est. Returns: $340M',details:[['Exit Pipeline','5'],['IPO Ready','2'],['M&A Targets','3'],['Est. Proceeds','$340M']]},
-  {id:'celeb-suite',name:'CELEBRITY SUITE',x:450,y:250,w:110,h:130,color:'#ea80fc',glow:'#ea80fc',icon:'⭐',stats:'Matches: 14 | Alignment Avg: 87%',details:[['Active Matches','14'],['Avg Alignment','87%'],['Warm Intros','42'],['Brand Score','9.1/10']]},
-  {id:'command-center',name:'COMMAND CENTER',x:850,y:500,w:160,h:170,color:'#00e5ff',glow:'#00e5ff',icon:'🎯',stats:'System Status: OPTIMAL | Uptime: 99.7%',details:[['System Status','OPTIMAL'],['Agents Active','8'],['Tasks Today','127'],['Uptime','99.7%']]}
+const agents=[
+{icon:'🔍',name:'DEAL SCOUT',status:'green',tasks:['Scanning YC W26 batch — 12 matches','AngelList: 847 new listings processed','PitchBook alert: 3 Series A in climate','Crunchbase: cross-referencing 450 founders'],completed:47,cpu:72,mem:58,progress:78},
+{icon:'📋',name:'DUE DILIGENCE',status:'amber',tasks:['NovaTech: revenue $12M, growing 340% YoY','Cap table clean — no red flags','Reference checks: 5/6 complete','Market size validation: $48B TAM confirmed'],completed:31,cpu:89,mem:74,progress:92},
+{icon:'🤝',name:'LP RELATIONS',status:'green',tasks:['Q4 report distributed to 23 LPs','Capital call notice: $12M Series B','LP portal: 45 views today','New LP onboarding: KYC verified'],completed:22,cpu:34,mem:41,progress:45},
+{icon:'📊',name:'MARKET INTEL',status:'green',tasks:['AI multiples: 2.1x (down from 3.8x)','Fed decision in 48hrs — dovish signal','Competitor alert: Nova raising $500M','Sector rotation: health → climate'],completed:56,cpu:61,mem:53,progress:67},
+{icon:'⚙️',name:'PORTFOLIO OPS',status:'amber',tasks:['Meridian: burn rate 22% over projection','Board decks generated for 4 companies','Monthly KPIs refreshed — 12 updates','Hiring tracker: 34 open roles across portfolio'],completed:38,cpu:77,mem:82,progress:85},
+{icon:'🛡️',name:'RISK ENGINE',status:'green',tasks:['Monte Carlo: 95th %ile TVPI 3.2x','Concentration: 34% AI (limit: 40%)','Stress test: recession = -18% NAV','Liquidity forecast: 14 months runway'],completed:29,cpu:95,mem:67,progress:71},
+{icon:'🚪',name:'EXIT STRATEGY',status:'blue',tasks:['IPO window: 3 fintech cos eligible','Secondary bid: $45M for 8% stake','M&A comps: 8.2x revenue multiple','Lock-up expiry: 2 positions in 30 days'],completed:14,cpu:28,mem:35,progress:32},
+{icon:'⭐',name:'CELEBRITY MATCH',status:'green',tasks:['LP prospect: 94% thesis alignment','Brand synergy analysis complete','3 warm intros queued for next week','Media impact model: $2.1M equiv value'],completed:19,cpu:45,mem:39,progress:52}
 ];
-const AGENTS_CONFIG=[
-  {name:'Deal Scout',emoji:'🔍',color:'#00e5ff',home:0,messages:['Found 3 Series A matches in climate tech','Scanning AngelList — 847 new listings','Cross-referencing YC W26 batch']},
-  {name:'Due Diligence',emoji:'📋',color:'#b388ff',home:1,messages:['NovaTech financials: 340% YoY growth','Reference check 4/6 complete','Red flag: customer concentration 68%']},
-  {name:'LP Relations',emoji:'🤝',color:'#ff4081',home:2,messages:['Q4 report sent to 12 LPs','Capital call: $12M co-invest ready','New LP onboarding: verification complete']},
-  {name:'Market Intel',emoji:'📈',color:'#ffab40',home:3,messages:['AI multiples down to 2.1x from 3.8x','Fed rate decision in 48hrs','Competitor raising $500M Fund III']},
-  {name:'Portfolio Ops',emoji:'⚙️',color:'#69f0ae',home:4,messages:['Burn alert: Meridian exceeding 22%','Board deck generated for 4 cos','Monthly KPIs refreshed']},
-  {name:'Risk Engine',emoji:'🛡️',color:'#ff5252',home:5,messages:['Monte Carlo: 95th %ile TVPI 3.2x','Sector concentration: 34% AI','Stress test: recession scenario -18%']},
-  {name:'Exit Strategy',emoji:'🚪',color:'#ffd740',home:6,messages:['IPO window open for 3 fintech cos','Secondary bid received: $45M','M&A comp: 8.2x revenue multiple']},
-  {name:'Celebrity Match',emoji:'🌟',color:'#ea80fc',home:7,messages:['94% alignment score for new LP','Brand synergy report complete','3 warm intros queued']}
+const feedMessages=[
+{type:'completed',icon:'🔍',agent:'DEAL SCOUT',msg:'Match found: AeroVolt (Series A, $8M, Clean Energy) → Forwarded to DD'},
+{type:'completed',icon:'🛡️',agent:'RISK ENGINE',msg:'Stress test complete: Base case TVPI 2.8x, Bear case 1.9x'},
+{type:'alert',icon:'📊',agent:'MARKET INTEL',msg:'ALERT: Stripe IPO filing detected — impact analysis started'},
+{type:'completed',icon:'⚙️',agent:'PORTFOLIO OPS',msg:'KPI update: TechFlow revenue hit $5M MRR milestone'},
+{type:'completed',icon:'🤝',agent:'LP RELATIONS',msg:'Capital call email sent to 23 LPs ($12M Series B co-invest)'},
+{type:'alert',icon:'📋',agent:'DUE DILIGENCE',msg:'Red flag: CloudMesh customer concentration 68% (top 3 clients)'},
+{type:'completed',icon:'🚪',agent:'EXIT STRATEGY',msg:'M&A alert: Acquisition offer for PortfolioCo at 12x revenue'},
+{type:'info',icon:'⭐',agent:'CELEBRITY MATCH',msg:'New LP scored: Jamie Chen — 94% alignment, $25M capacity'},
+{type:'progress',icon:'🔍',agent:'DEAL SCOUT',msg:'Processing batch: 234 startups from AngelList syndicate feed'},
+{type:'completed',icon:'📊',agent:'MARKET INTEL',msg:'Sector report generated: AI/ML valuations down 22% from peak'},
+{type:'info',icon:'🤝',agent:'LP RELATIONS',msg:'LP portal login: Sequoia Heritage viewed Fund III performance'},
+{type:'completed',icon:'🛡️',agent:'RISK ENGINE',msg:'Monte Carlo simulation: 10,000 runs complete, 95th %ile TVPI 3.2x'},
+{type:'progress',icon:'📋',agent:'DUE DILIGENCE',msg:'Background check in progress: NovaTech founding team (3/4 clear)'},
+{type:'completed',icon:'⚙️',agent:'PORTFOLIO OPS',msg:'Board deck generated: Meridian Technologies Q4 review'},
+{type:'info',icon:'🚪',agent:'EXIT STRATEGY',msg:'IPO window analysis: favorable conditions for fintech in Q2'},
+{type:'completed',icon:'⭐',agent:'CELEBRITY MATCH',msg:'Brand synergy score: 87/100 for partnership with Athlete Fund'},
+{type:'alert',icon:'⚙️',agent:'PORTFOLIO OPS',msg:'ALERT: Meridian burn rate 22% over projection — flagged for review'},
+{type:'completed',icon:'🔍',agent:'DEAL SCOUT',msg:'Climate tech scan complete: 3 companies meet thesis criteria'},
+{type:'progress',icon:'🤝',agent:'LP RELATIONS',msg:'Preparing Q1 investor letter — draft 2 under review'},
+{type:'completed',icon:'📊',agent:'MARKET INTEL',msg:'Fed sentiment analysis: 78% probability of rate hold'},
+{type:'info',icon:'🛡️',agent:'RISK ENGINE',msg:'Concentration check passed: all sectors within allocation limits'},
+{type:'completed',icon:'📋',agent:'DUE DILIGENCE',msg:'TAM validation complete: SaaS infrastructure market $48B by 2028'},
+{type:'progress',icon:'🚪',agent:'EXIT STRATEGY',msg:'Secondary market bid analysis: evaluating 3 potential buyers'},
+{type:'completed',icon:'⭐',agent:'CELEBRITY MATCH',msg:'Media impact model: partnership valued at $2.1M equivalent coverage'},
+{type:'alert',icon:'📊',agent:'MARKET INTEL',msg:'Competitor alert: Nova Capital raising $500M Fund V'},
+{type:'completed',icon:'🔍',agent:'DEAL SCOUT',msg:'Crunchbase sync: 450 founder profiles cross-referenced'},
+{type:'info',icon:'⚙️',agent:'PORTFOLIO OPS',msg:'Hiring tracker update: 34 open roles across 12 portfolio companies'},
+{type:'completed',icon:'🤝',agent:'LP RELATIONS',msg:'KYC verification complete: New LP onboarded (family office, $15M)'},
+{type:'progress',icon:'🛡️',agent:'RISK ENGINE',msg:'Running liquidity forecast model — estimated 14 months runway'},
+{type:'completed',icon:'📋',agent:'DUE DILIGENCE',msg:'Financial model validated: NovaTech projections conservative and credible'},
+{type:'info',icon:'🚪',agent:'EXIT STRATEGY',msg:'Lock-up expiry tracker: 2 positions unlocking in 30 days'},
+{type:'completed',icon:'⭐',agent:'CELEBRITY MATCH',msg:'Warm intro package prepared: 3 high-alignment LPs for next week'},
+{type:'alert',icon:'🔍',agent:'DEAL SCOUT',msg:'Hot deal: Quantum Computing startup, $5M seed, ex-Google team'},
+{type:'completed',icon:'📊',agent:'MARKET INTEL',msg:'Weekly digest published: 12 key market movements tracked'}
 ];
-const city=document.getElementById('city');
-// Stars
-(function(){const c=document.getElementById('stars');for(let i=0;i<120;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+1;s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;--d:'+(2+Math.random()*4)+'s;--o:'+(0.3+Math.random()*0.7);c.appendChild(s)}})();
-// Grid
-(function(){const cv=document.getElementById('iso-grid'),ctx=cv.getContext('2d');ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.lineWidth=1;for(let i=-20;i<40;i++){ctx.beginPath();ctx.moveTo(i*60,0);ctx.lineTo(i*60+700,1400);ctx.stroke();ctx.beginPath();ctx.moveTo(2000-i*60,0);ctx.lineTo(2000-i*60-700,1400);ctx.stroke()}})();
-// Build buildings
-function addPath(svg,d,fill,stroke){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke);p.setAttribute('stroke-width','0.5');p.setAttribute('stroke-opacity','0.4');svg.appendChild(p)}
-function createBuilding(b){
-  const div=document.createElement('div');div.className='building';
-  div.style.cssText='left:'+b.x+'px;top:'+b.y+'px;width:'+b.w+'px;height:'+b.h+'px;--glow:'+b.glow;
-  const topW=b.w,depth=b.w*0.5,frontH=b.h;
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width',topW+depth);svg.setAttribute('height',frontH+depth/2);
-  svg.setAttribute('viewBox','0 0 '+(topW+depth)+' '+(frontH+depth/2));svg.classList.add('iso-bldg');
-  addPath(svg,'M'+topW+','+depth/2+' L'+(topW+depth)+',0 L'+(topW+depth)+','+frontH+' L'+topW+','+(frontH+depth/2)+' Z',b.color+'55',b.color);
-  addPath(svg,'M0,'+depth/2+' L'+topW+','+depth/2+' L'+topW+','+(frontH+depth/2)+' L0,'+(frontH+depth/2)+' Z',b.color+'99',b.color);
-  addPath(svg,'M0,'+depth/2+' L'+depth+',0 L'+(topW+depth)+',0 L'+topW+','+depth/2+' Z',b.color+'cc',b.color);
-  const cols=Math.floor(topW/22),rows=Math.floor(frontH/28);
-  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-    const win=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    win.setAttribute('x',8+c*(topW-16)/cols);win.setAttribute('y',depth/2+12+r*(frontH-20)/rows);
-    win.setAttribute('width',10);win.setAttribute('height',14);win.setAttribute('rx',1);
-    win.setAttribute('fill',Math.random()>.3?b.color+'88':'#ffffff22');
-    win.style.animation='twinkle '+(2+Math.random()*4)+'s ease-in-out '+(Math.random()*3)+'s infinite alternate';
-    svg.appendChild(win);
-  }
-  div.appendChild(svg);
-  const icon=document.createElement('div');icon.style.cssText='position:absolute;top:'+(depth/2+10)+'px;left:50%;transform:translateX(-50%);font-size:28px;filter:drop-shadow(0 0 8px '+b.color+')';icon.textContent=b.icon;div.appendChild(icon);
-  const label=document.createElement('div');label.className='label';label.textContent=b.name;div.appendChild(label);
-  const stats=document.createElement('div');stats.className='stats';stats.textContent=b.stats;div.appendChild(stats);
-  div.addEventListener('click',function(){showOverlay(b)});
-  city.appendChild(div);
+const funds=[
+{name:'Fund I',aum:'$180M',deployed:'98%',irr:34.2,tvpi:'3.1x',status:'Harvesting'},
+{name:'Fund II',aum:'$320M',deployed:'92%',irr:28.7,tvpi:'2.6x',status:'Harvesting'},
+{name:'Fund III',aum:'$450M',deployed:'78%',irr:31.1,tvpi:'2.2x',status:'Deploying'},
+{name:'Fund IV',aum:'$520M',deployed:'45%',irr:22.3,tvpi:'1.5x',status:'Deploying'},
+{name:'Fund V',aum:'$380M',deployed:'12%',irr:18.9,tvpi:'1.1x',status:'Deploying'},
+{name:'Opp I',aum:'$200M',deployed:'88%',irr:41.5,tvpi:'3.8x',status:'Harvesting'},
+{name:'Growth',aum:'$250M',deployed:'65%',irr:12.4,tvpi:'1.3x',status:'Fully Invested'},
+{name:'Climate',aum:'$100M',deployed:'30%',irr:15.8,tvpi:'1.2x',status:'Deploying'}
+];
+const pipelineData=[
+{label:'Sourced',count:124,color:'rgba(0,255,200,0.2)'},
+{label:'Screening',count:45,color:'rgba(0,255,200,0.35)'},
+{label:'DD',count:12,color:'rgba(0,255,200,0.5)'},
+{label:'IC Review',count:5,color:'rgba(0,255,200,0.65)'},
+{label:'Term Sheet',count:3,color:'rgba(0,255,200,0.8)'},
+{label:'Closed',count:1,color:'var(--accent)'}
+];
+const sectors=[
+{name:'AI/ML',pct:34,color:'#00ffc8'},
+{name:'Fintech',pct:18,color:'#7b61ff'},
+{name:'Health',pct:15,color:'#00e676'},
+{name:'Climate',pct:12,color:'#ffb800'},
+{name:'Space',pct:8,color:'#ff4757'},
+{name:'Consumer',pct:7,color:'#4ecdc4'},
+{name:'Enterprise',pct:6,color:'#888'}
+];
+const metricsData=[
+{label:'Total AUM',value:'$2.4B',spark:true},
+{label:'Active Deals',value:'23',spark:true},
+{label:'Portfolio Cos',value:'67'},
+{label:'Avg IRR',value:'28.4%',green:true},
+{label:'Closed (MTD)',value:'4'},
+{label:'LP Pipeline',value:'$340M'},
+{label:'Exits (YTD)',value:'3'},
+{label:'Tasks Today',value:'0',counter:true}
+];
+
+function updateClock(){
+const now=new Date();
+document.getElementById('clock-time').textContent=now.toLocaleTimeString('en-US',{hour12:false});
+document.getElementById('clock-date').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
-BUILDINGS.forEach(createBuilding);
-// Paths
-function drawPath(b1,b2){
-  const div=document.createElement('div');div.className='path-line';
-  const cx1=b1.x+b1.w/2,cy1=b1.y+b1.h/2,cx2=b2.x+b2.w/2,cy2=b2.y+b2.h/2;
-  const dx=cx2-cx1,dy=cy2-cy1,len=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx)*180/Math.PI;
-  div.style.cssText='left:'+cx1+'px;top:'+cy1+'px;width:'+len+'px;transform:rotate('+angle+'deg);animation-delay:'+(Math.random()*4)+'s';
-  city.appendChild(div);
-}
-const cc=BUILDINGS[8];BUILDINGS.forEach(function(b,i){if(i!==8)drawPath(b,cc)});
-drawPath(BUILDINGS[0],BUILDINGS[1]);drawPath(BUILDINGS[2],BUILDINGS[4]);drawPath(BUILDINGS[3],BUILDINGS[5]);drawPath(BUILDINGS[6],BUILDINGS[7]);
-// Agents
-const agents=[];
-AGENTS_CONFIG.forEach(function(cfg){
-  const div=document.createElement('div');div.className='agent';div.style.setProperty('--agent-color',cfg.color);
-  const body=document.createElement('div');body.className='agent-body';body.textContent=cfg.emoji;
-  const name=document.createElement('div');name.className='agent-name';name.textContent=cfg.name;body.appendChild(name);div.appendChild(body);
-  const bubble=document.createElement('div');bubble.className='bubble';div.appendChild(bubble);
-  const tq=document.createElement('div');tq.className='task-queue';
-  tq.innerHTML='<div class="tq-title">'+cfg.name+' — Task Queue</div>'+cfg.messages.map(function(m){return '<div class="tq-item">'+m+'</div>'}).join('');
-  div.appendChild(tq);
-  const home=BUILDINGS[cfg.home];const sx=home.x+home.w/2-14,sy=home.y+home.h/2-14;
-  div.style.left=sx+'px';div.style.top=sy+'px';
-  city.appendChild(div);
-  agents.push({el:div,bubble:bubble,cfg:cfg,msgIdx:0,x:sx,y:sy,targetX:sx,targetY:sy,moving:false});
-});
-// Agent movement
-function moveAgent(a){
-  var t=BUILDINGS[Math.floor(Math.random()*BUILDINGS.length)];
-  a.targetX=t.x+t.w/2-14+(Math.random()*30-15);a.targetY=t.y+t.h/2-14+(Math.random()*30-15);a.moving=true;
-}
-function updateAgents(){
-  agents.forEach(function(a){
-    if(a.moving){var dx=a.targetX-a.x,dy=a.targetY-a.y,dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<3){a.moving=false;a.x=a.targetX;a.y=a.targetY}
-      else{a.x+=dx/dist*1.2;a.y+=dy/dist*1.2}
-      a.el.style.left=a.x+'px';a.el.style.top=a.y+'px'}
-  });requestAnimationFrame(updateAgents);
-}
-updateAgents();
-setInterval(function(){agents.forEach(function(a){if(!a.moving&&Math.random()>.3)moveAgent(a)})},3000);
-// Bubbles
-setInterval(function(){agents.forEach(function(a){
-  a.bubble.classList.remove('active');
-  setTimeout(function(){a.bubble.textContent=a.cfg.messages[a.msgIdx];a.msgIdx=(a.msgIdx+1)%a.cfg.messages.length;a.bubble.classList.add('active')},300);
-})},4500);
-setTimeout(function(){agents.forEach(function(a){a.bubble.textContent=a.cfg.messages[0];a.bubble.classList.add('active')})},500);
-// Particles
-function spawnParticle(){
-  var b1=BUILDINGS[Math.floor(Math.random()*BUILDINGS.length)],b2=BUILDINGS[Math.floor(Math.random()*BUILDINGS.length)];
-  if(b1===b2)return;var p=document.createElement('div');p.className='particle';
-  var colors=['#00e5ff','#b388ff','#69f0ae','#ffab40','#ff4081'];p.style.background=colors[Math.floor(Math.random()*colors.length)];
-  p.style.boxShadow='0 0 6px '+p.style.background;
-  var sx=b1.x+b1.w/2,sy=b1.y+b1.h/2,ex=b2.x+b2.w/2,ey=b2.y+b2.h/2;
-  p.style.left=sx+'px';p.style.top=sy+'px';city.appendChild(p);
-  var dur=2000+Math.random()*2000,start=performance.now();
-  function animate(t){var prog=Math.min((t-start)/dur,1),ease=prog<.5?2*prog*prog:1-Math.pow(-2*prog+2,2)/2;
-    p.style.left=(sx+(ex-sx)*ease)+'px';p.style.top=(sy+(ey-sy)*ease)+'px';
-    p.style.opacity=prog<.1?prog*10:prog>.9?(1-prog)*10:0.6;
-    if(prog<1)requestAnimationFrame(animate);else p.remove()}
-  requestAnimationFrame(animate);
-}
-setInterval(spawnParticle,400);
-// Drones
-function spawnDrone(){
-  var d=document.createElement('div');d.className='drone';var db=document.createElement('div');db.className='drone-body';d.appendChild(db);
-  var b1=BUILDINGS[Math.floor(Math.random()*BUILDINGS.length)],b2=BUILDINGS[Math.floor(Math.random()*BUILDINGS.length)];
-  if(b1===b2)return;var sx=b1.x+b1.w/2,sy=b1.y-20,ex=b2.x+b2.w/2,ey=b2.y-20;
-  d.style.left=sx+'px';d.style.top=sy+'px';city.appendChild(d);
-  var dur=3000+Math.random()*3000,start=performance.now();
-  function anim(t){var p=Math.min((t-start)/dur,1),yOff=Math.sin(p*Math.PI)*-40;
-    d.style.left=(sx+(ex-sx)*p)+'px';d.style.top=(sy+(ey-sy)*p+yOff)+'px';
-    if(p<1)requestAnimationFrame(anim);else d.remove()}
-  requestAnimationFrame(anim);
-}
-setInterval(spawnDrone,2500);
-// Holo
-var holo=document.createElement('div');holo.id='holo';
-holo.style.cssText='left:'+(BUILDINGS[8].x+BUILDINGS[8].w/2-60)+'px;top:'+(BUILDINGS[8].y-80)+'px;width:120px';
-holo.innerHTML='<div class="holo-ring"></div><div class="holo-text">FUND TVPI</div><div class="holo-val">3.2x</div>';
-city.appendChild(holo);
-// Clock
-function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 setInterval(updateClock,1000);updateClock();
-// Log
-var LOG_MESSAGES=[
-  {agent:'Deal Scout',msg:'found match: AeroVolt (Series A, $8M, Clean Energy)'},
-  {agent:'Risk Engine',msg:'completed stress test — recession scenario'},
-  {agent:'Due Diligence',msg:'NovaTech reference check 5/6 complete'},
-  {agent:'LP Relations',msg:'Q4 report distributed to 12 LPs'},
-  {agent:'Market Intel',msg:'alert: AI sector multiples declining 12%'},
-  {agent:'Portfolio Ops',msg:'Meridian burn rate alert triggered'},
-  {agent:'Exit Strategy',msg:'IPO readiness assessment complete for FinFlow'},
-  {agent:'Celebrity Match',msg:'new alignment score: 94% for prospect #47'},
-  {agent:'Deal Scout',msg:'YC W26 batch scan: 23 matches identified'},
-  {agent:'Risk Engine',msg:'Monte Carlo simulation #12,847 complete'},
-  {agent:'Due Diligence',msg:'red flag detected: customer concentration 68%'},
-  {agent:'Portfolio Ops',msg:'board deck auto-generated for 4 companies'},
-  {agent:'Market Intel',msg:'competitor intelligence: Sequoia raising Fund XXII'},
-  {agent:'LP Relations',msg:'capital call processed: $12M co-invest'},
-  {agent:'Exit Strategy',msg:'secondary bid received: $45M for DataMesh'},
-  {agent:'Celebrity Match',msg:'3 warm introductions queued for approval'}
-];
-var logIdx=0,logEl=document.getElementById('log-entries');
-function addLogEntry(){
-  var entry=LOG_MESSAGES[logIdx%LOG_MESSAGES.length],now=new Date();
-  var time=now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
-  var div=document.createElement('div');div.className='log-entry';
-  div.innerHTML='<span class="log-time">'+time+'</span><span class="log-agent">'+entry.agent+'</span> '+entry.msg;
-  logEl.insertBefore(div,logEl.firstChild);if(logEl.children.length>5)logEl.removeChild(logEl.lastChild);logIdx++;
+
+const metricsEl=document.getElementById('metrics');
+metricsData.forEach((m,i)=>{
+const card=document.createElement('div');card.className='metric-card';
+let spark='';
+if(m.spark){spark='<div class="sparkline">';for(let j=0;j<12;j++){spark+=`<div class="bar" style="height:${Math.random()*16+4}px"></div>`}spark+='</div>'}
+card.innerHTML=`<div class="label">${m.label}</div><div class="value${m.green?' green':''}" id="metric-${i}">${m.value}</div>${spark}`;
+metricsEl.appendChild(card);
+});
+
+let taskCount=247;
+const taskEl=document.getElementById('total-tasks');
+const metricTaskEl=document.getElementById('metric-7');
+function updateTasks(){taskCount++;taskEl.textContent=taskCount;metricTaskEl.textContent=taskCount}
+setInterval(updateTasks,4500);taskEl.textContent=taskCount;metricTaskEl.textContent=taskCount;
+
+const agentsEl=document.getElementById('agents');
+const agentTaskIdx=agents.map(()=>0);
+const statusColors={green:'var(--success)',amber:'var(--warn)',blue:'var(--purple)'};
+agents.forEach((a,i)=>{
+const div=document.createElement('div');div.className='agent-item';
+const cpuC=a.cpu>80?'var(--danger)':a.cpu>60?'var(--warn)':'var(--accent)';
+const memC=a.mem>80?'var(--danger)':a.mem>60?'var(--warn)':'var(--accent)';
+div.innerHTML=`<div class="agent-header"><span class="icon">${a.icon}</span><span class="name">${a.name}</span><span class="status-dot" style="background:${statusColors[a.status]};box-shadow:0 0 6px ${statusColors[a.status]}"></span></div>
+<div class="agent-task" id="atask-${i}">${a.tasks[0]}</div>
+<div class="agent-meta"><span class="count">${a.completed} tasks</span><div class="progress-bar"><div class="fill" style="width:${a.progress}%;background:${statusColors[a.status]}"></div></div><span style="font-size:8px">${new Date().toLocaleTimeString('en-US',{hour12:false}).slice(0,5)}</span></div>
+<div class="usage-bars"><div class="usage-bar"><div class="lbl">CPU</div><div class="track"><div class="fill" id="cpu-${i}" style="width:${a.cpu}%;background:${cpuC}"></div></div></div><div class="usage-bar"><div class="lbl">MEM</div><div class="track"><div class="fill" id="mem-${i}" style="width:${a.mem}%;background:${memC}"></div></div></div></div>`;
+agentsEl.appendChild(div);
+});
+
+setInterval(()=>{
+agents.forEach((a,i)=>{
+agentTaskIdx[i]=(agentTaskIdx[i]+1)%a.tasks.length;
+const el=document.getElementById(`atask-${i}`);
+el.style.opacity='0';
+setTimeout(()=>{el.textContent=a.tasks[agentTaskIdx[i]];el.style.opacity='1'},300);
+const nc=Math.min(99,Math.max(10,a.cpu+Math.round((Math.random()-.5)*16)));
+const nm=Math.min(99,Math.max(10,a.mem+Math.round((Math.random()-.5)*10)));
+a.cpu=nc;a.mem=nm;
+const cc=nc>80?'var(--danger)':nc>60?'var(--warn)':'var(--accent)';
+const mc=nm>80?'var(--danger)':nm>60?'var(--warn)':'var(--accent)';
+document.getElementById(`cpu-${i}`).style.cssText=`width:${nc}%;background:${cc}`;
+document.getElementById(`mem-${i}`).style.cssText=`width:${nm}%;background:${mc}`;
+});
+},4000);
+
+const feedList=document.getElementById('feed-list');
+let feedIdx=0;
+function addFeedEntry(){
+const m=feedMessages[feedIdx%feedMessages.length];feedIdx++;
+const ts=new Date().toLocaleTimeString('en-US',{hour12:false});
+const e=document.createElement('div');e.className=`feed-entry ${m.type}`;
+e.innerHTML=`<span class="ts">${ts}</span> ${m.icon} <span class="agent">${m.agent}</span> — ${m.msg}`;
+feedList.insertBefore(e,feedList.firstChild);
+if(feedList.children.length>25)feedList.removeChild(feedList.lastChild);
 }
-addLogEntry();addLogEntry();addLogEntry();setInterval(addLogEntry,4000);
-// Task counter
-var taskCount=127;setInterval(function(){taskCount+=Math.floor(Math.random()*3);document.getElementById('task-count').textContent=taskCount},8000);
-// Overlay
-function showOverlay(b){
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('overlay-title').textContent=b.icon+' '+b.name;
-  document.getElementById('overlay-card').style.borderColor=b.color;
-  document.getElementById('overlay-title').style.color=b.color;
-  var html='';b.details.forEach(function(d){html+='<div class="detail-row"><span class="detail-label">'+d[0]+'</span><span class="detail-val" style="color:'+b.color+'">'+d[1]+'</span></div>'});
-  document.getElementById('overlay-body').innerHTML=html;
-}
-function closeOverlay(){document.getElementById('overlay').classList.remove('show')}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOverlay()});
-// Pan
-var isDragging=false,dragStartX,dragStartY,offsetX=0,offsetY=0;
-var wrap=document.getElementById('city-wrap');
-wrap.addEventListener('mousedown',function(e){isDragging=true;dragStartX=e.pageX-offsetX;dragStartY=e.pageY-offsetY;wrap.style.cursor='grabbing'});
-window.addEventListener('mousemove',function(e){if(!isDragging)return;offsetX=e.pageX-dragStartX;offsetY=e.pageY-dragStartY;city.style.transform='translate(calc(-50% + '+offsetX+'px), calc(-50% + '+offsetY+'px))'});
-window.addEventListener('mouseup',function(){isDragging=false;wrap.style.cursor='grab'});
-wrap.style.cursor='grab';
+for(let i=0;i<8;i++)addFeedEntry();
+setInterval(addFeedEntry,2500);
+
+const ftEl=document.getElementById('fund-table');
+ftEl.innerHTML='<tr><th>Fund</th><th>AUM</th><th>Depl</th><th>IRR</th><th>TVPI</th><th>Status</th></tr>'+
+funds.map(f=>`<tr><td style="color:var(--accent)">${f.name}</td><td>${f.aum}</td><td>${f.deployed}</td><td class="${f.irr>25?'irr-high':f.irr>15?'irr-mid':'irr-low'}">${f.irr}%</td><td>${f.tvpi}</td><td style="color:var(--dim)">${f.status}</td></tr>`).join('');
+
+document.getElementById('pipeline').innerHTML='<div class="pipeline">'+pipelineData.map(p=>
+`<div class="pipe-stage" style="flex:${p.count/124};background:${p.color};min-width:50px"><span class="count">${p.count}</span><span class="lbl">${p.label}</span></div>`).join('')+'</div>';
+
+const secEl=document.getElementById('sectors');
+sectors.forEach(s=>{secEl.innerHTML+=`<div class="sector-bar"><span class="name">${s.name}</span><div class="track"><div class="fill" style="width:${s.pct}%;background:${s.color}">${s.pct}%</div></div></div>`});
+
+setInterval(()=>{document.querySelectorAll('.sparkline').forEach(sl=>{sl.querySelectorAll('.bar').forEach(b=>{b.style.height=Math.random()*16+4+'px'})})},3000);
 </script>
 </body>
 </html>
